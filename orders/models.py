@@ -1,95 +1,126 @@
-from django.conf import settings
-from django.db import models
-from django.contrib.auth import get_user_model
+# Category models: hierarchical product categories.
 
-from store.models import Product, Variant
+from django.db import models  # Django model fields.
+from django.utils.text import slugify  # Converts text into a URL-friendly slug.
 
-User = get_user_model()
+# Import the shared active model.
+from core.models import ActiveModel
 
-
-class Address(models.Model):
-    """Multiple addresses per user; Pakistan-specific cities/areas."""
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
-
-    first_name = models.CharField(max_length=80)
-    last_name = models.CharField(max_length=80)
-    phone = models.CharField(max_length=30)
-
-    line1 = models.CharField(max_length=250)
-    line2 = models.CharField(max_length=250, blank=True)
-
-    city = models.CharField(max_length=80, blank=True)
-    area = models.CharField(max_length=80, blank=True)
-
-    postal_code = models.CharField(max_length=20, blank=True)
-
-    is_default = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['-is_default', '-id']
-
-    def __str__(self):
-        return f"{self.user.username} - {self.city} ({self.area})"
+# Import custom validator.
+from core.validators import validate_non_negative
 
 
-class Order(models.Model):
-    class Status(models.TextChoices):
-        PENDING = 'PENDING', 'Pending'
-        CONFIRMED = 'CONFIRMED', 'Confirmed'
-        SHIPPED = 'SHIPPED', 'Shipped'
-        DELIVERED = 'DELIVERED', 'Delivered'
-        CANCELLED = 'CANCELLED', 'Cancelled'
-        RETURNED = 'RETURNED', 'Returned'
+# Represents a product category.
+class Category(ActiveModel):
 
-    PAYMENT_METHOD_COD = 'COD'
+    # Category name.
+    name = models.CharField(max_length=100)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    billing_address = models.ForeignKey(
-        Address,
-        on_delete=models.PROTECT,
-        related_name='billing_orders',
-        null=True,
-        blank=True,
+    # URL-friendly unique slug.
+    # blank=True allows it to be generated automatically.
+    slug = models.SlugField(
+        max_length=120,
+        unique=True,
+        blank=True
     )
 
+    # Optional category description.
+    description = models.TextField(blank=True)
 
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    # Optional parent category for nested categories.
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,     # Delete child categories if the parent is deleted.
+        null=True,
+        blank=True,
+        related_name='children'       # Access child categories using category.children.
+    )
 
-    payment_method = models.CharField(max_length=10, default=PAYMENT_METHOD_COD)
-    paid = models.BooleanField(default=False)
+    # Optional category image.
+    image = models.ImageField(
+        upload_to='categories/',
+        blank=True,
+        null=True
+    )
 
-    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    # Display order.
+    order = models.PositiveIntegerField(default=0)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # SEO title.
+    meta_title = models.CharField(max_length=160, blank=True)
 
-    # keep legacy fields for now (migration backfill later)
-    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
-    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
-    razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
+    # SEO description.
+    meta_description = models.CharField(max_length=300, blank=True)
 
+    # SEO keywords.
+    meta_keywords = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+
+        # Sort categories by order, then by name.
+        ordering = ('order', 'name')
+
+        # Singular model name.
+        verbose_name = 'category'
+
+        # Plural model name.
+        verbose_name_plural = 'categories'
+
+    # String representation of the category.
     def __str__(self):
-        return f'Order #{self.id} - {self.user.username}'
+        return self.name
 
-
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='order_items')
-    variant_size = models.ForeignKey(Variant, on_delete=models.PROTECT, related_name='order_items')
-
-    quantity = models.PositiveIntegerField(default=1)
-    unit_price = models.DecimalField(max_digits=12, decimal_places=2)
-
-    line_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
+    # Save the category.
     def save(self, *args, **kwargs):
-        if not self.line_total:
-            self.line_total = self.unit_price * self.quantity
+
+        # Generate a slug if one doesn't already exist.
+        if not self.slug:
+
+            # slugify() converts text into a URL-friendly string.
+            base = slugify(self.name) or 'category'
+
+            # Start with the base slug.
+            slug = base
+
+            # Counter for duplicate slugs.
+            n = 1
+
+            # exists() returns True if a matching record exists.
+            while Category.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+
+                # Add a number to make the slug unique.
+                slug = f'{base}-{n}'
+
+                n += 1
+
+            # Save the unique slug.
+            self.slug = slug
+
+        # Call the parent save() method.
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.product.name} x{self.quantity}"
+    # Check whether this category has no parent.
+    @property
+    def is_parent(self):
+
+        return self.parent is None
+
+    # Return all parent categories.
+    def get_ancestors(self):
+
+        # Store parent categories.
+        ancestors = []
+
+        # Start with the direct parent.
+        node = self.parent
+
+        # Move up the category tree.
+        while node:
+
+            ancestors.append(node)
+
+            node = node.parent
+
+        # reversed() reverses the list order.
+        # list() converts the reversed object into a list.
+        return list(reversed(ancestors))
