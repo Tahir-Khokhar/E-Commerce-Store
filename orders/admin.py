@@ -1,11 +1,29 @@
-from django.contrib import admin
-from .models import Order
+# Admin registration for categories.
+
+from django.contrib import admin  # Django admin module.
+
+# Import the Category model.
+from categories.models import Category
 
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'total_amount', 'paid', 'created_at', 'updated_at']
-    list_filter = ['paid', 'created_at']
-    search_fields = ['id', 'user__username', 'user__email']
-    readonly_fields = ['total_amount']
+# Register the Category model in the Django admin.
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
 
+    # Columns displayed in the category list.
+    list_display = ('name', 'parent', 'order', 'is_active')
+
+    # Filters shown in the right sidebar.
+    list_filter = ('is_active', 'parent')
+
+    # Fields that can be edited directly from the list page.
+    list_editable = ('order', 'is_active')
+
+    # Fields used when searching categories.
+    search_fields = ('name', 'slug', 'meta_keywords')
+
+    # Automatically fill the slug field from the name field.
+    prepopulated_fields = {'slug': ('name',)}
+
+    # These fields are read-only in the admin panel.
+    readonly_fields = ('created_at', 'updated_at')
