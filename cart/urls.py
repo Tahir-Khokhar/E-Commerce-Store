@@ -1,13 +1,25 @@
-from django.urls import path
-from . import views
+# URL patterns for the cart app (web pages).
 
-app_name = 'cart'
+from django.urls import path  # Used to define URL routes.
 
+# Import view functions for the cart app.
+from cart import views
+
+# List of URL patterns for the cart app.
 urlpatterns = [
-    path('', views.cart_detail, name='cart_detail'),
-    path('add/<int:product_id>/', views.cart_add, name='cart_add'),
-    # Variant-aware add (size+color)
-    path('add/<int:product_id>/<int:variant_id>/', views.cart_add_variant, name='cart_add_variant'),
-    path('remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
-]
 
+    # Display the shopping cart page.
+    path('', views.cart_detail, name='cart_detail'),
+
+    # Add a product to the cart.
+    # <slug:slug> captures the product slug from the URL.
+    path('add/<slug:slug>/', views.add_to_cart, name='add_to_cart'),
+
+    # Update the quantity of a cart item.
+    # <uuid:item_id> captures the cart item's UUID.
+    path('update/<uuid:item_id>/', views.update_cart_item, name='update_cart_item'),
+
+    # Remove a cart item from the cart.
+    # <uuid:item_id> captures the cart item's UUID.
+    path('remove/<uuid:item_id>/', views.remove_cart_item, name='remove_cart_item'),
+]
