@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+<h2 class="mb-4">Your cart</h2>
+{% if cart.cart_items.all %}
+<table class="table align-middle">
+    <thead>
+        <tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for item in cart.cart_items.all %}
+        <tr>
+            <td>
+                {% with image=item.product.images.first %}
+                    {% if image %}<img src="{{ image.image.url }}" width="50" class="me-2">{% endif %}
+                {% endwith %}
+                <a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a>
+                {% if item.variant %}<br><small class="text-muted">{{ item.variant.name }}</small>{% endif %}
+            </td>
+            <td>${{ item.unit_price }}</td>
+            <td>
+                <form method="post" action="{% url 'update_cart_item' item.id %}" class="d-flex gap-1">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm w-auto">
+                    <button class="btn btn-sm btn-outline-secondary">Update</button>
+                </form>
+            </td>
+            <td>${{ item.line_total }}</td>
+            <td><a href="{% url 'remove_cart_item' item.id %}" class="btn btn-sm btn-outline-danger">Remove</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="row justify-content-end">
+    <div class="col-md-4">
+        <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between"><span>Subtotal</span><span>${{ cart.subtotal }}</span></li>
+            {% if cart.coupon %}<li class="list-group-item d-flex justify-content-between"><span>Coupon ({{ cart.coupon.code }})</span><span>-discount applied</span></li>{% endif %}
+        </ul>
+        {% if coupon_error %}<div class="alert alert-danger">{{ coupon_error }}</div>{% endif %}
+        <form method="post" class="d-flex gap-2 mb-3">
+            {% csrf_token %}
+            <input type="text" name="code" class="form-control" placeholder="Coupon code">
+            <button name="apply_coupon" class="btn btn-outline-primary">Apply</button>
+        </form>
+        <a href="{% url 'checkout_page' %}" class="btn btn-primary w-100">Proceed to checkout</a>
+    </div>
+</div>
+{% else %}
+<p>Your cart is empty. <a href="{% url 'product_list' %}">Continue shopping</a>.</p>
+{% endif %}
+{% endblock %}
