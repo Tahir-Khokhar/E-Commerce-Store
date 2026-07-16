@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif;">
+    <h2>Verify your email</h2>
+    <p>Hi {{ user.first_name|default:user.username }},</p>
+    <p>Please confirm your email address by clicking the link below:</p>
+    <p><a href="{{ verify_url }}">{{ verify_url }}</a></p>
+    <p>This link expires in 48 hours.</p>
+</body>
+</html>
