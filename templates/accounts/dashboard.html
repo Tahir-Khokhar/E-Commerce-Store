@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2 class="mb-4">Welcome, {{ user.first_name|default:user.username }}</h2>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Orders</h5>
+                <p class="card-text display-6">{{ orders_count }}</p>
+                <a href="{% url 'order_list' %}" class="text-white">View orders &rarr;</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Wishlist</h5>
+                <p class="card-text display-6">{{ wishlist_count }}</p>
+                <a href="{% url 'wishlist_view' %}" class="text-white">View wishlist &rarr;</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-secondary">
+            <div class="card-body">
+                <h5 class="card-title">Profile</h5>
+                <p class="card-text">Manage your account</p>
+                <a href="{% url 'profile_page' %}" class="text-white">Edit profile &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>Recent orders</h4>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Order</th><th>Date</th><th>Status</th><th>Total</th></tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td><a href="{% url 'order_detail' order.id %}">{{ order.order_number }}</a></td>
+            <td>{{ order.created_at|date }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>${{ order.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No orders yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
