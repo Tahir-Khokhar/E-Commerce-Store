@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Payment cancelled{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+    <h2 class="text-warning">Payment cancelled</h2>
+    <p>Your payment was cancelled{% if order %} for order <strong>{{ order.order_number }}</strong>{% endif %}.</p>
+    {% if order %}<a href="{% url 'payment_options' order.id %}" class="btn btn-primary">Try again</a>{% else %}<a href="{% url 'home' %}" class="btn btn-primary">Continue</a>{% endif %}
+</div>
+{% endblock %}
