@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Track order{% endblock %}
+{% block content %}
+<h2 class="mb-4">Track order {{ order.order_number }}</h2>
+{% if order.tracking_number %}
+<p>Tracking number: <strong>{{ order.tracking_number }}</strong></p>
+{% else %}
+<p>Your order has not been shipped yet.</p>
+{% endif %}
+<div class="timeline">
+    <ul class="list-group">
+        {% for log in order.status_logs.all %}
+        <li class="list-group-item">
+            <strong>{{ log.get_to_status_display }}</strong>
+            {% if log.note %}— {{ log.note }}{% endif %}
+            <br><small class="text-muted">{{ log.created_at|date }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
