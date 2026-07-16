@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Coupons{% endblock %}
+{% block content %}
+<h2 class="mb-3">Coupons</h2>
+<table class="table table-striped">
+    <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Limit</th><th>Active</th></tr></thead>
+    <tbody>
+        {% for c in coupons %}
+        <tr><td>{{ c.code }}</td><td>{{ c.get_discount_type_display }}</td><td>{{ c.value }}</td><td>{{ c.used_count }}</td><td>{{ c.usage_limit }}</td><td>{% if c.active %}Yes{% else %}No{% endif %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
