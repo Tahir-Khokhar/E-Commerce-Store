@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="text-center py-5 bg-light rounded mb-4">
+    <h1 class="display-5">Welcome to Ecommerence</h1>
+    <p class="lead">Discover quality products at great prices.</p>
+    <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">Shop now</a>
+</section>
+
+{% if categories %}
+<section class="mb-5">
+    <h3>Shop by category</h3>
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-6 col-md-3 mb-3">
+            <a href="{% url 'category_detail' category.slug %}" class="text-decoration-none">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if featured %}
+<section class="mb-5">
+    <h3>Featured products</h3>
+    <div class="row">
+        {% for product in featured %}
+        <div class="col-6 col-md-3 mb-4">
+            <div class="card h-100">
+                {% with image=product.images.first %}
+                    {% if image %}<img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.alt }}">{% endif %}
+                {% endwith %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="text-primary">${{ product.price }}</p>
+                    <a href="{% url 'product_detail' product.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if new_arrivals %}
+<section class="mb-5">
+    <h3>New arrivals</h3>
+    <div class="row">
+        {% for product in new_arrivals %}
+        <div class="col-6 col-md-3 mb-4">
+            <div class="card h-100">
+                {% with image=product.images.first %}
+                    {% if image %}<img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.alt }}">{% endif %}
+                {% endwith %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="text-primary">${{ product.price }}</p>
+                    <a href="{% url 'product_detail' product.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if best_sellers %}
+<section class="mb-5">
+    <h3>Best sellers</h3>
+    <div class="row">
+        {% for product in best_sellers %}
+        <div class="col-6 col-md-3 mb-4">
+            <div class="card h-100">
+                {% with image=product.images.first %}
+                    {% if image %}<img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.alt }}">{% endif %}
+                {% endwith %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="text-primary">${{ product.price }}</p>
+                    <a href="{% url 'product_detail' product.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}
