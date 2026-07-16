@@ -1,0 +1,50 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+footer {
+    margin-top: auto;
+}
+
+main {
+    min-height: calc(100vh - 200px);
+}
+
+.img-thumbnail {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.img-thumbnail:hover {
+    opacity: 0.8;
+}
+
+.badge {
+    font-size: 0.85em;
+}
+
+.table img {
+    border-radius: 4px;
+}
+
+form[novalidate] .form-control:invalid {
+    border-color: #dc3545;
+}
+
+.alert-dismissible .btn-close {
+    padding: 0.75rem 1rem;
+}
