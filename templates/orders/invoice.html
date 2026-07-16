@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}Invoice {{ order.order_number }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <span><strong>Invoice</strong> — {{ order.order_number }}</span>
+        <span>{{ order.created_at|date }}</span>
+    </div>
+    <div class="card-body">
+        <p><strong>Bill to:</strong> {{ order.shipping_full_name }}, {{ order.shipping_city }}, {{ order.shipping_country }}</p>
+        <table class="table">
+            <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr><td>{{ item.name }}</td><td>{{ item.quantity }}</td><td>${{ item.price }}</td><td>${{ item.total }}</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr><td colspan="3" class="text-end">Subtotal</td><td>${{ order.subtotal }}</td></tr>
+                <tr><td colspan="3" class="text-end">Discount</td><td>-${{ order.discount }}</td></tr>
+                <tr><td colspan="3" class="text-end">Tax</td><td>${{ order.tax }}</td></tr>
+                <tr><td colspan="3" class="text-end">Shipping</td><td>${{ order.shipping }}</td></tr>
+                <tr><td colspan="3" class="text-end"><strong>Total</strong></td><td><strong>${{ order.total }}</strong></td></tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+{% endblock %}
