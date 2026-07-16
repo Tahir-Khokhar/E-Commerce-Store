@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif;">
+    <h2>Order confirmation</h2>
+    <p>Hi {{ order.user.first_name|default:order.user.username }},</p>
+    <p>Thank you for your order <strong>{{ order.order_number }}</strong>.</p>
+    <p>Total: ${{ order.total }}</p>
+    <p>We'll notify you when your order status changes.</p>
+</body>
+</html>
