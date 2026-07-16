@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}{{ title|default:"Shop" }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ title|default:"Shop" }}</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <form method="get" class="mb-3">
+            <input type="text" name="q" value="{{ query }}" class="form-control mb-2" placeholder="Search products">
+            <select name="category" class="form-select mb-2">
+                <option value="">All categories</option>
+                {% for c in categories %}
+                <option value="{{ c.slug }}" {% if selected_category == c.slug %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="brand" class="form-select mb-2">
+                <option value="">All brands</option>
+                {% for b in brands %}
+                <option value="{{ b.slug }}" {% if selected_brand == b.slug %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="sort" class="form-select mb-2">
+                <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
+                <option value="price_asc" {% if sort == "price_asc" %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_desc" {% if sort == "price_desc" %}selected{% endif %}>Price: High to Low</option>
+                <option value="best" {% if sort == "best" %}selected{% endif %}>Best sellers</option>
+                <option value="rating" {% if sort == "rating" %}selected{% endif %}>Top rated</option>
+            </select>
+            <button class="btn btn-primary w-100">Filter</button>
+        </form>
+    </div>
+    <div class="col-md-9">
+        <div class="row">
+            {% for product in products %}
+            <div class="col-6 col-md-4 mb-4">
+                <div class="card h-100">
+                    {% with image=product.images.first %}
+                        {% if image %}<img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.alt }}">{% endif %}
+                    {% endwith %}
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ product.name }}</h6>
+                        <p class="text-primary mb-1">${{ product.price }}</p>
+                        {% if product.average_rating %}<small>{% star_rating product.average_rating %} ({{ product.review_count }})</small>{% endif %}
+                        <a href="{% url 'product_detail' product.slug %}" class="btn btn-sm btn-outline-primary mt-auto">View</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No products found.</p>
+            {% endfor %}
+        </div>
+        {% if products.paginator.num_pages > 1 %}
+        <nav>
+            <ul class="pagination">
+                {% if products.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Page {{ products.number }} of {{ products.paginator.num_pages }}</span></li>
+                {% if products.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
