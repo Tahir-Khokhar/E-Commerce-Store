@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Addresses{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Address book</h2>
+</div>
+<div class="row">
+    <div class="col-md-7">
+        {% for address in addresses %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ address.full_name }} {% if address.is_default %}<span class="badge bg-success">Default</span>{% endif %}</h5>
+                <p class="card-text">
+                    {{ address.line1 }}<br>
+                    {% if address.line2 %}{{ address.line2 }}<br>{% endif %}
+                    {{ address.city }}{% if address.state %}, {{ address.state }}{% endif %} {{ address.postal_code }}<br>
+                    {{ address.country }}<br>
+                    <span class="badge bg-secondary">{{ address.get_address_type_display }}</span>
+                </p>
+                <a href="{% url 'delete_address' address.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>No addresses yet.</p>
+        {% endfor %}
+    </div>
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">Add address</div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100">Save address</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
