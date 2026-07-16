@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h2 class="mb-4">Sales reports</h2>
+<div class="row mb-4">
+    <div class="col-md-6"><div class="card text-bg-primary"><div class="card-body">
+        <h6>This month revenue</h6><p class="display-6">${{ monthly_revenue }}</p>
+    </div></div></div>
+    <div class="col-md-6"><div class="card text-bg-success"><div class="card-body">
+        <h6>Average order value</h6><p class="display-6">${{ avg_order }}</p>
+    </div></div></div>
+</div>
+<h4>Top products</h4>
+<table class="table table-striped">
+    <thead><tr><th>Product</th><th>Units sold</th></tr></thead>
+    <tbody>
+        {% for p in top_products %}
+        <tr><td>{{ p.name }}</td><td>{{ p.sold }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
