@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Payment success{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+    <h2 class="text-success">Payment successful!</h2>
+    <p>Thank you for your order{% if order %} <strong>{{ order.order_number }}</strong>{% endif %}.</p>
+    {% if order %}<a href="{% url 'order_detail' order.id %}" class="btn btn-primary">View order</a>{% else %}<a href="{% url 'home' %}" class="btn btn-primary">Continue</a>{% endif %}
+</div>
+{% endblock %}
