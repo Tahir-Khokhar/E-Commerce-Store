@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Request refund{% endblock %}
+{% block content %}
+<h2 class="mb-4">Request a refund</h2>
+<div class="row">
+    <div class="col-md-6">
+        <p>Order: <strong>{{ order.order_number }}</strong> — Total: ${{ order.total }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Reason for refund</label>
+                <textarea name="reason" class="form-control" rows="4" required></textarea>
+            </div>
+            <button class="btn btn-danger">Submit request</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
